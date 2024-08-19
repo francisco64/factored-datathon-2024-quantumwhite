@@ -1,0 +1,58 @@
+{
+  "name": "gdelt_data_pipeline_flex_template",
+  "description": "A Flex Template for processing GDELT event or GKG data and loading it into BigQuery.",
+  "parameters": [
+    {
+      "name": "table_name",
+      "label": "Table Name",
+      "helpText": "The name of the GDELT table (e.g., 'events' or 'gkg').",
+      "isOptional": false
+    },
+    {
+      "name": "region",
+      "label": "Region",
+      "helpText": "The GCP region where the Dataflow job will run.",
+      "isOptional": false
+    },
+    {
+      "name": "project_id",
+      "label": "Project ID",
+      "helpText": "The ID of the GCP project.",
+      "isOptional": false
+    },
+    {
+      "name": "url_of_index",
+      "label": "URL of Index",
+      "helpText": "The URL of the index.html containing the file links to process.",
+      "isOptional": false
+    },
+    {
+      "name": "in_url",
+      "label": "Include in URL",
+      "helpText": "A list of terms that must be present in the URL to be processed.",
+      "isOptional": false
+    },
+    {
+      "name": "not_in_url",
+      "label": "Exclude from URL",
+      "helpText": "A list of terms that should be excluded from the URLs being processed.",
+      "isOptional": true
+    },
+    {
+      "name": "schema",
+      "label": "BigQuery Schema",
+      "helpText": "Specify the schema to use for the BigQuery table (e.g., 'events' or 'gkg').",
+      "isOptional": false
+    },
+    {
+      "name": "day_before_condition",
+      "label": "Day Before Condition",
+      "helpText": "Set to 1 to filter URLs by the day before the current date, 0 otherwise.",
+      "isOptional": false
+    }
+  ],
+  "sdkInfo": {
+    "language": "PYTHON"
+  },
+  "defaultEnvironment": {}
+}
