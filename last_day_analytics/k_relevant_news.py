@@ -3,7 +3,7 @@ import pandas as pd
 import re
 from collections import Counter
 import numpy as np
-from scipy.sparse import csr_matrix
+#from scipy.sparse import csr_matrix
 
 # Set the environment variable for Google Cloud credentials
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = '/home/francisco/Downloads/factoreddatathon2014-915498c6302b.json'
@@ -60,43 +60,43 @@ for index, row in df.iterrows():
 # Convert to sparse matrix to save memory
 bow = np.array(multihot_vectors)
 
-# import requests
-# from bs4 import BeautifulSoup
-# import tensorflow_hub as hub
+import requests
+from bs4 import BeautifulSoup
+import tensorflow_hub as hub
 
-# embed = hub.load("https://tfhub.dev/google/universal-sentence-encoder/4")
+embed = hub.load("https://tfhub.dev/google/universal-sentence-encoder/4")
 
-# # Function to extract text from the URL
-# def get_text_from_url(url):
-#     try:
-#         response = requests.get(url, timeout=10)
-#         response.raise_for_status()  # Raise an error for bad status codes
-#         soup = BeautifulSoup(response.content, 'html.parser')
+# Function to extract text from the URL
+def get_text_from_url(url):
+    try:
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()  # Raise an error for bad status codes
+        soup = BeautifulSoup(response.content, 'html.parser')
 
-#         # Extract text from the HTML, for example from <p> tags
-#         paragraphs = soup.find_all('p')
-#         text = ' '.join([para.get_text() for para in paragraphs])
-#         return text
-#     except requests.RequestException as e:
-#         print(f"Error fetching {url}: {e}")
-#         return None
+        # Extract text from the HTML, for example from <p> tags
+        paragraphs = soup.find_all('p')
+        text = ' '.join([para.get_text() for para in paragraphs])
+        return text
+    except requests.RequestException as e:
+        print(f"Error fetching {url}: {e}")
+        return None
 
-# # Function to generate the embedding of the text
-# def get_embedding(text):
-#     embedding = embed([text]).numpy()
-#     return np.array(embedding)[0]  # Convert to a numpy array
+# Function to generate the embedding of the text
+def get_embedding(text):
+    embedding = embed([text]).numpy()
+    return np.array(embedding)[0]  # Convert to a numpy array
 
-# # Example usage: Process each URL in the DataFrame
-# embeddings = []
-# for url in df['SOURCEURLS']:  
-#     url=url.split('<UDIV>')[0]# Assuming 'SOURCEURLS' is the column with URLs
-#     if pd.notna(url):  # Check if the URL is not NaN
-#         text = get_text_from_url(url)
-#         if text:  # Only proceed if text was successfully extracted
-#             embedding = get_embedding(text)
-#             embeddings.append(embedding)
-#         else:
-#             continue
+# Example usage: Process each URL in the DataFrame
+embeddings = []
+for url in df['SOURCEURLS']:  
+    url=url.split('<UDIV>')[0]# Assuming 'SOURCEURLS' is the column with URLs
+    if pd.notna(url):  # Check if the URL is not NaN
+        text = get_text_from_url(url)
+        if text:  # Only proceed if text was successfully extracted
+            embedding = get_embedding(text)
+            embeddings.append(embedding)
+        else:
+            continue
 import numpy as np
 from sklearn.cluster import KMeans
 from sklearn.metrics.pairwise import cosine_distances
@@ -106,30 +106,37 @@ import matplotlib.pyplot as plt
 
 
 # Compute cosine distance matrix
-cosine_dist_matrix = cosine_distances(bow[0:10000,:])
+cosine_dist_matrix = cosine_distances(bow[0:20000,:])
 
-# Function to find the optimal number of clusters using the Elbow Method
 def find_optimal_k_elbow(X, max_k=10):
     wcss = []  # Within-cluster sum of squares (WCSS)
-    for k in range(2, max_k+1):
+    for k in range(2, max_k + 1):
         kmeans = KMeans(n_clusters=k, random_state=42)
         kmeans.fit(X)
         wcss.append(kmeans.inertia_)
-        print("trained kmeans with k equals {}".format(k))
+        print(f"Trained KMeans with k = {k}")
     
     # Plotting the elbow curve
-    plt.plot(range(2, max_k+1), wcss, marker='o')
+    plt.plot(range(2, max_k + 1), wcss, marker='o')
     plt.title('Elbow Method for Optimal k')
     plt.xlabel('Number of Clusters')
     plt.ylabel('WCSS (Inertia)')
     plt.show()
-
+    
+    # Finding the "elbow" point (i.e., the point where the curve bends)
+    # Simple method: find the point with the maximum second derivative
+    # You may need to adjust this depending on the shape of your data
+    diff_wcss = np.diff(wcss)
+    optimal_k = np.argmin(diff_wcss) + 2  # +2 because k starts at 2
+    return optimal_k
 
 # Find the optimal k using the elbow method
 #find_optimal_k_elbow(cosine_dist_matrix)
 
+optimal_k = find_optimal_k_elbow(cosine_dist_matrix, max_k=10)
+print(f'Optimal number of clusters (k): {optimal_k}')
 
-kmeans = KMeans(n_clusters=6, random_state=42)
+kmeans = KMeans(n_clusters=optimal_k, random_state=42)
 kmeans.fit(cosine_dist_matrix)
 
 # # Find the optimal k using the silhouette score method
@@ -150,7 +157,7 @@ import matplotlib.pyplot as plt
 
 # Convert the cosine distance matrix to a 2D space using t-SNE
 tsne = TSNE(n_components=2, metric='cosine', random_state=42,perplexity=kmeans.n_clusters - 1)
-tsne_results = tsne.fit_transform(bow[0:10000])
+tsne_results = tsne.fit_transform(bow[0:20000])
 
 # Plot the t-SNE results along with the cluster centroids
 plt.figure(figsize=(10, 7))
