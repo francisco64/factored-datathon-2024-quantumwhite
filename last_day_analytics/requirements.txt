@@ -1,0 +1,4 @@
+pandas
+gcsfs
+scipy
+#tensorflow_hub
