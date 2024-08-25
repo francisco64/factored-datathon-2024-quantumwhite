@@ -63,6 +63,8 @@ While Apache Spark is another popular data processing framework, Apache Beam com
 
 ### General Architecture
 
+<img src="https://github.com/francisco64/factored-datathon-2024-quantumwhite/blob/267e3b1a9b7d10a68fc6b227c0785f318ff8b849/images/datapipelinearchitecture.png" alt="drawing" width="800"/>
+
 The architecture consists of the following key components:
 
 - **Pipeline Definition:** The data pipeline is defined using Apache Beam in a Python script. This script outlines the process of fetching, extracting, uploading, and loading data.
