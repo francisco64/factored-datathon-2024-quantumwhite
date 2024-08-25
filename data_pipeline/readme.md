@@ -3,6 +3,36 @@
 ## Overview
 
 This documentation outlines the creation and execution of a data pipeline designed to process GDELT (Global Database of Events, Language, and Tone) data, specifically event or GKG (Global Knowledge Graph) data, and load it into Google BigQuery. The pipeline leverages Apache Beam and Google Cloud Dataflow for efficient, scalable data processing and ingestion tasks, facilitating both the processing of thousands of URLs and daily scheduled jobs.
+### Usage Overview
+
+The `gdelt2bq.py` script is designed to handle the ingestion of GDELT data into BigQuery with flexibility for different use cases. The script supports two primary modes of operation: 
+
+1. **Processing the Entire Dataset:** This mode is suitable for an initial bulk load or a complete refresh of the data in BigQuery. It processes all available files on the GDELT website that match the specified criteria.
+  
+2. **Daily Scheduling:** This mode is optimized for incremental updates, typically processing only the data from the previous day. This ensures that the BigQuery dataset remains up to date without needing to reprocess the entire historical dataset.
+
+
+## Argument Parsing in gdelt2bq.py
+
+The `gdelt2bq.py` script uses argument parsing to provide flexibility in how the pipeline is executed. Below is an explanation of the key arguments:
+
+- **`--table_name`:** Specifies the BigQuery table to be populated (`events` or `gkg`). This argument determines whether the pipeline will process event data or GKG data.
+
+- **`--region`:** The Google Cloud region where the Dataflow job will run.
+
+- **`--project_id`:** The Google Cloud Project ID where the BigQuery table resides.
+
+- **`--url_of_index`:** The URL of the index.html file containing the list of downloadable data files on the GDELT website.
+
+- **`--in_url`:** Specifies the terms that should be included in the URL for the files to be downloaded. This helps filter the correct dataset (e.g., `.zip` for zip files).
+
+- **`--not_in_url`:** (Optional) Specifies the terms that should be excluded from the URL, allowing for more refined filtering.
+
+- **`--schema`:** Defines the schema for the BigQuery table, which can be either `events` or `gkg`.
+
+- **`--day_before_condition`:** Controls whether the pipeline should process data from the previous day only (1 for yes, 0 for no). This is particularly useful for daily scheduling.
+
+The parsed arguments allow the script to dynamically adjust its behavior based on the user's needs, whether that's processing all data or focusing on daily updates, and whether the data pertains to events or the GKG.
 
 ## Methodology
 
@@ -46,12 +76,12 @@ Flex Templates in Google Dataflow allow for the packaging and deployment of Apac
 
 ### Performance Metrics
 
-Below is an example of the expected performance metrics for processing different types of GDELT data:
+Below is an example of the performance metrics obtained after processing GKG and Events datasets. Worth saying that even if dataflow allows automatic scaling, there were limitations to the workers used imposed by GCP:
 
 | Data Type       | Average Processing Time | Average Data Size | Notes                             |
 |-----------------|-------------------------|-------------------|-----------------------------------|
-| Events Data     | 3 hours                 | 200 GB            | Batch processing of daily data    |
-| GKG Data        | 2.5 hours               | 150 GB            | Batch processing of daily data    |
+| Events Data     | around 1 hour                 | 160 GB            | Batch of whole data  |
+| GKG Data        | around 1 hour               | 200 GB            | Batch of whole data     |
 
 ## Step-by-Step Guide
 
