@@ -11,6 +11,8 @@ This document provides a comprehensive explanation of the methodologies employed
 
 The foundation of the K-Relevant News System lies in efficiently encoding the vast amounts of textual data available. This starts with selecting and encoding tokens from themes, organizations, and persons in the GKG schema.
 
+<img src="https://github.com/francisco64/factored-datathon-2024-quantumwhite/blob/6dfa5b6114926336a462f1cadf84732c56507c78/images/krelevantnews_solution_diagram.png" alt="drawing" width="800"/>
+
 #### Key Experiment: Token Filtering
 
 - **Challenge:** With potentially thousands of tokens available, it was essential to filter out the noise and focus on the most impactful ones.
@@ -65,6 +67,8 @@ The final step in the content analysis pipeline involves summarizing the texts o
 ### System Architecture
 
 The K-Relevant News System is deployed on Google Cloud to leverage its scalable and powerful infrastructure.
+
+<img src="https://github.com/francisco64/factored-datathon-2024-quantumwhite/blob/6dfa5b6114926336a462f1cadf84732c56507c78/images/krelevantnews_architecture.png" alt="drawing" width="800"/>
 
 #### Key Components:
 
